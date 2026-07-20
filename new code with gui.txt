@@ -1,0 +1,857 @@
+import tkinter as tk
+from tkinter import filedialog
+from collections import Counter
+from datetime import datetime
+import random
+import os
+import time
+
+
+# =====================================================
+# TRUE MODERN THEME
+# =====================================================
+
+BG = "#0b0f19"
+SIDEBAR = "#121826"
+BOX = "#1b2333"
+FG = "#f1f5f9"
+ACCENT = "#38bdf8"
+BUTTON = "#1e293b"
+HOVER = "#334155"
+
+
+# =====================================================
+# CORE CIPHERS
+# =====================================================
+
+def caesar_encrypt(text, key):
+
+    result = ""
+
+    for c in text:
+
+        if c.isalpha():
+
+            shift = key % 26
+
+            if c.isupper():
+                result += chr((ord(c) - 65 + shift) % 26 + 65)
+
+            else:
+                result += chr((ord(c) - 97 + shift) % 26 + 97)
+
+        else:
+            result += c
+
+    return result
+
+
+def caesar_decrypt(text, key):
+
+    return caesar_encrypt(text, -key)
+
+
+def atbash_cipher(text):
+
+    result = ""
+
+    for c in text:
+
+        if c.isalpha():
+
+            if c.isupper():
+                result += chr(ord('Z') - (ord(c) - ord('A')))
+
+            else:
+                result += chr(ord('z') - (ord(c) - ord('a')))
+
+        else:
+            result += c
+
+    return result
+
+
+def vigenere_encrypt(text, key):
+
+    key = key.lower()
+
+    result = ""
+
+    key_index = 0
+
+    for c in text:
+
+        if c.isalpha():
+
+            shift = ord(key[key_index % len(key)]) - ord('a')
+
+            if c.isupper():
+                result += chr((ord(c) - 65 + shift) % 26 + 65)
+
+            else:
+                result += chr((ord(c) - 97 + shift) % 26 + 97)
+
+            key_index += 1
+
+        else:
+            result += c
+
+    return result
+
+
+def vigenere_decrypt(text, key):
+
+    key = key.lower()
+
+    result = ""
+
+    key_index = 0
+
+    for c in text:
+
+        if c.isalpha():
+
+            shift = ord(key[key_index % len(key)]) - ord('a')
+
+            if c.isupper():
+                result += chr((ord(c) - 65 - shift) % 26 + 65)
+
+            else:
+                result += chr((ord(c) - 97 - shift) % 26 + 97)
+
+            key_index += 1
+
+        else:
+            result += c
+
+    return result
+
+
+# =====================================================
+# EXTRA FEATURES
+# =====================================================
+
+def brute_force(text):
+
+    results = []
+
+    for key in range(1, 26):
+
+        decrypted = caesar_decrypt(text, key)
+
+        results.append(f"Key {key}: {decrypted}")
+
+    return "\n".join(results)
+
+
+def frequency_analysis(text):
+
+    letters = [c.upper() for c in text if c.isalpha()]
+
+    if not letters:
+        return "No letters found."
+
+    counts = Counter(letters)
+
+    result = "=== LETTER FREQUENCY ANALYSIS ===\n\n"
+
+    for letter, count in sorted(counts.items()):
+        result += f"{letter}: {count}\n"
+
+    return result
+
+
+def auto_detect(text):
+
+    letters = [c.upper() for c in text if c.isalpha()]
+
+    if not letters:
+        return "No letters found."
+
+    counts = Counter(letters)
+
+    most_common = counts.most_common(1)[0][0]
+
+    guessed_key = (ord(most_common) - ord('E')) % 26
+
+    decrypted = caesar_decrypt(text, guessed_key)
+
+    return (
+        f"Most Common Letter: {most_common}\n"
+        f"Predicted Key: {guessed_key}\n\n"
+        f"Predicted Message:\n{decrypted}"
+    )
+
+
+def random_key():
+
+    return random.randint(1, 25)
+
+
+def encryption_strength(layers, message_length):
+
+    score = layers * 10 + message_length
+
+    if score < 30:
+        return "Weak"
+
+    elif score < 60:
+        return "Moderate"
+
+    else:
+        return "Strong"
+
+
+# =====================================================
+# SMART AI CRACK MODE
+# =====================================================
+
+def smart_ai_crack(text):
+
+    letters = [c.upper() for c in text if c.isalpha()]
+
+    if not letters:
+        return "No encrypted text detected."
+
+    counts = Counter(letters)
+
+    most_common = counts.most_common(1)[0][0]
+
+    predicted_key = (ord(most_common) - ord('E')) % 26
+
+    caesar_guess = caesar_decrypt(text, predicted_key)
+
+    score = 0
+
+    common_words = [
+        "THE", "AND", "HELLO",
+        "SECRET", "MESSAGE",
+        "THIS", "IS"
+    ]
+
+    for word in common_words:
+
+        if word in caesar_guess.upper():
+            score += 1
+
+    confidence = min(score * 20, 100)
+
+    return (
+        f"=== SMART AI CRACK MODE ===\n\n"
+        f"Predicted Cipher: Caesar Cipher\n"
+        f"Predicted Key: {predicted_key}\n"
+        f"Confidence: {confidence}%\n\n"
+        f"Predicted Decryption:\n\n"
+        f"{caesar_guess}"
+    )
+
+
+# =====================================================
+# BENCHMARK SYSTEM
+# =====================================================
+
+def benchmark_encryption(text):
+
+    results = []
+
+    start = time.perf_counter()
+    caesar_encrypt(text, 5)
+    end = time.perf_counter()
+
+    results.append(
+        f"Caesar Cipher: {end - start:.8f} seconds"
+    )
+
+    start = time.perf_counter()
+    atbash_cipher(text)
+    end = time.perf_counter()
+
+    results.append(
+        f"Atbash Cipher: {end - start:.8f} seconds"
+    )
+
+    start = time.perf_counter()
+    vigenere_encrypt(text, "secure")
+    end = time.perf_counter()
+
+    results.append(
+        f"Vigenere Cipher: {end - start:.8f} seconds"
+    )
+
+    return (
+        "=== ENCRYPTION BENCHMARK ===\n\n"
+        + "\n".join(results)
+    )
+
+
+# =====================================================
+# CIPHER COMPARISON LAB
+# =====================================================
+
+def cipher_comparison_lab(text):
+
+    caesar_result = caesar_encrypt(text, 5)
+
+    atbash_result = atbash_cipher(text)
+
+    vigenere_result = vigenere_encrypt(text, "secure")
+
+    return (
+        "=== CIPHER COMPARISON LAB ===\n\n"
+        f"Original:\n{text}\n\n"
+        f"Caesar Cipher:\n{caesar_result}\n\n"
+        f"Atbash Cipher:\n{atbash_result}\n\n"
+        f"Vigenere Cipher:\n{vigenere_result}\n"
+    )
+
+
+# =====================================================
+# HISTORY SYSTEM
+# =====================================================
+
+history = []
+
+
+def save_history(action, result):
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    history.append(
+        f"[{timestamp}] {action}\n{result}\n"
+    )
+
+
+def view_history():
+
+    if not history:
+        return "No history available."
+
+    return "\n".join(history)
+
+
+# =====================================================
+# EXPORT REPORT
+# =====================================================
+
+def export_report(original, result, cipher_type, key):
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    report = f"""
+========== ENCRYPTION REPORT ==========
+Time: {timestamp}
+
+Cipher Used:
+{cipher_type}
+
+Original Message:
+{original}
+
+Result:
+{result}
+
+Key:
+{key}
+
+=======================================
+"""
+
+    with open("encryption_report.txt", "a", encoding="utf-8") as file:
+        file.write(report)
+
+
+# =====================================================
+# FILE ENCRYPTION
+# =====================================================
+
+def encrypt_file():
+
+    path = filedialog.askopenfilename()
+
+    if not path:
+        return "No file selected."
+
+    if not os.path.exists(path):
+        return "File not found."
+
+    key = simple_input("Enter Caesar Key")
+
+    if not key:
+        return "No key entered."
+
+    key = int(key)
+
+    with open(path, "r", encoding="utf-8") as file:
+        content = file.read()
+
+    encrypted = caesar_encrypt(content, key)
+
+    output_file = "encrypted_" + os.path.basename(path)
+
+    with open(output_file, "w", encoding="utf-8") as file:
+        file.write(encrypted)
+
+    return f"Encrypted file saved as:\n{output_file}"
+
+
+# =====================================================
+# CIPHER CHAIN
+# =====================================================
+
+def cipher_chain(text, key, keyword):
+
+    result = caesar_encrypt(text, key)
+
+    result = atbash_cipher(result)
+
+    result = vigenere_encrypt(result, keyword)
+
+    export_report(text, result, "Cipher Chain", f"{key} + {keyword}")
+
+    return result
+
+
+# =====================================================
+# AI MODE
+# =====================================================
+
+def ai_mode(text):
+
+    key = random_key()
+
+    keyword = "secure"
+
+    result = caesar_encrypt(text, key)
+
+    result = atbash_cipher(result)
+
+    result = vigenere_encrypt(result, keyword)
+
+    strength = encryption_strength(3, len(text))
+
+    export_report(text, result, "AI Mode", f"{key} + {keyword}")
+
+    return (
+        f"AI Selected:\n"
+        f"- Caesar Cipher\n"
+        f"- Atbash Cipher\n"
+        f"- Vigenere Cipher\n\n"
+        f"Generated Caesar Key: {key}\n"
+        f"Keyword: {keyword}\n"
+        f"Strength: {strength}\n\n"
+        f"Encrypted Message:\n{result}"
+    )
+
+
+# =====================================================
+# POPUP INPUT
+# =====================================================
+
+def simple_input(prompt):
+
+    popup = tk.Toplevel(root)
+
+    popup.title("Input")
+
+    popup.geometry("300x150")
+
+    popup.configure(bg=BG)
+
+    tk.Label(
+        popup,
+        text=prompt,
+        bg=BG,
+        fg=FG,
+        font=("Segoe UI", 11)
+    ).pack(pady=10)
+
+    entry = tk.Entry(
+        popup,
+        width=25,
+        font=("Segoe UI", 11)
+    )
+
+    entry.pack(pady=5)
+
+    result = {"value": None}
+
+    def submit():
+
+        result["value"] = entry.get()
+
+        popup.destroy()
+
+    tk.Button(
+        popup,
+        text="OK",
+        command=submit,
+        bg=ACCENT,
+        fg="black",
+        relief="flat",
+        font=("Segoe UI", 10, "bold")
+    ).pack(pady=10)
+
+    popup.wait_window()
+
+    return result["value"]
+
+
+# =====================================================
+# MULTI-LAYER ENCRYPTION TRACKER
+# =====================================================
+
+current_encrypted_message = ""
+total_decryption_key = 0
+
+
+# =====================================================
+# MAIN APP LOGIC
+# =====================================================
+
+def run():
+
+    global current_encrypted_message
+    global total_decryption_key
+
+    text = input_box.get("1.0", tk.END).strip()
+
+    action = selected_action.get()
+
+    output_box.delete("1.0", tk.END)
+
+    result = ""
+
+    if action == "Encrypt":
+
+        key = simple_input("Enter Caesar Key")
+
+        try:
+
+            key = int(key)
+
+            if key == 0:
+                result = "Error: Key cannot be 0."
+
+            else:
+
+                if current_encrypted_message == "":
+                    current_encrypted_message = text
+
+                current_encrypted_message = caesar_encrypt(
+                    current_encrypted_message,
+                    key
+                )
+
+                total_decryption_key += key
+
+                decrypt_key = total_decryption_key % 26
+
+                strength = encryption_strength(
+                    total_decryption_key,
+                    len(current_encrypted_message)
+                )
+
+                result = (
+                    f"Encrypted Message:\n\n"
+                    f"{current_encrypted_message}\n\n"
+                    f"Current Decryption Key: {decrypt_key}\n"
+                    f"Encryption Strength: {strength}"
+                )
+
+        except:
+            result = "Invalid key."
+
+    elif action == "Decrypt":
+
+        key = simple_input("Enter Decryption Key")
+
+        try:
+
+            key = int(key)
+
+            result = caesar_decrypt(text, key)
+
+            current_encrypted_message = ""
+            total_decryption_key = 0
+
+        except:
+            result = "Invalid key."
+
+    elif action == "Brute Force":
+        result = brute_force(text)
+
+    elif action == "Frequency Analysis":
+        result = frequency_analysis(text)
+
+    elif action == "Auto Detect":
+        result = auto_detect(text)
+
+    elif action == "Atbash":
+        result = atbash_cipher(text)
+
+    elif action == "Vigenere Encrypt":
+
+        keyword = simple_input("Enter Keyword")
+
+        result = vigenere_encrypt(text, keyword)
+
+    elif action == "Vigenere Decrypt":
+
+        keyword = simple_input("Enter Keyword")
+
+        result = vigenere_decrypt(text, keyword)
+
+    elif action == "Encrypt File":
+        result = encrypt_file()
+
+    elif action == "Generate Random Key":
+        result = f"Generated Key: {random_key()}"
+
+    elif action == "Cipher Chain":
+
+        key = int(simple_input("Enter Caesar Key"))
+
+        keyword = simple_input("Enter Vigenere Keyword")
+
+        result = cipher_chain(text, key, keyword)
+
+    elif action == "AI Mode":
+        result = ai_mode(text)
+
+    elif action == "Smart AI Crack":
+        result = smart_ai_crack(text)
+
+    elif action == "Benchmark":
+        result = benchmark_encryption(text)
+
+    elif action == "Comparison Lab":
+        result = cipher_comparison_lab(text)
+
+    elif action == "View History":
+        result = view_history()
+
+    save_history(action, result)
+
+    output_box.insert(tk.END, result)
+
+
+# =====================================================
+# MAIN WINDOW
+# =====================================================
+
+root = tk.Tk()
+
+root.title("Cipher Toolkit Pro")
+
+root.geometry("1200x750")
+
+root.configure(bg=BG)
+
+root.resizable(False, False)
+
+
+# =====================================================
+# SCROLLABLE SIDEBAR
+# =====================================================
+
+sidebar_container = tk.Frame(root, bg=SIDEBAR, width=240)
+
+sidebar_container.pack(side="left", fill="y")
+
+
+canvas = tk.Canvas(
+    sidebar_container,
+    bg=SIDEBAR,
+    highlightthickness=0,
+    width=240
+)
+
+scrollbar = tk.Scrollbar(
+    sidebar_container,
+    orient="vertical",
+    command=canvas.yview
+)
+
+scrollable_frame = tk.Frame(
+    canvas,
+    bg=SIDEBAR
+)
+
+scrollable_frame.bind(
+    "<Configure>",
+    lambda e: canvas.configure(
+        scrollregion=canvas.bbox("all")
+    )
+)
+
+canvas.create_window(
+    (0, 0),
+    window=scrollable_frame,
+    anchor="nw"
+)
+
+canvas.configure(yscrollcommand=scrollbar.set)
+
+canvas.pack(side="left", fill="both", expand=True)
+
+scrollbar.pack(side="right", fill="y")
+
+
+# =====================================================
+# MAIN AREA
+# =====================================================
+
+main_area = tk.Frame(root, bg=BG)
+
+main_area.pack(side="right", fill="both", expand=True)
+
+
+selected_action = tk.StringVar(value="Encrypt")
+
+
+def set_action(action):
+
+    selected_action.set(action)
+
+
+# =====================================================
+# SIDEBAR TITLE
+# =====================================================
+
+sidebar_title = tk.Label(
+    scrollable_frame,
+    text="TOOLS",
+    bg=SIDEBAR,
+    fg=FG,
+    font=("Segoe UI", 18, "bold")
+)
+
+sidebar_title.pack(pady=20)
+
+
+# =====================================================
+# BUTTON LIST
+# =====================================================
+
+buttons = [
+    "Encrypt",
+    "Decrypt",
+    "Brute Force",
+    "Frequency Analysis",
+    "Auto Detect",
+    "Atbash",
+    "Vigenere Encrypt",
+    "Vigenere Decrypt",
+    "Encrypt File",
+    "Generate Random Key",
+    "Cipher Chain",
+    "AI Mode",
+    "Smart AI Crack",
+    "Benchmark",
+    "Comparison Lab",
+    "View History"
+]
+
+
+# =====================================================
+# CREATE BUTTONS
+# =====================================================
+
+for action in buttons:
+
+    btn = tk.Button(
+        scrollable_frame,
+        text=action,
+        command=lambda a=action: set_action(a),
+        bg=BUTTON,
+        fg=FG,
+        activebackground=HOVER,
+        activeforeground=FG,
+        relief="flat",
+        font=("Segoe UI", 10, "bold"),
+        width=24,
+        pady=8,
+        cursor="hand2"
+    )
+
+    btn.pack(pady=4, padx=10)
+
+
+# =====================================================
+# TITLE
+# =====================================================
+
+header = tk.Label(
+    main_area,
+    text="🔐 Cipher Toolkit Pro",
+    bg=BG,
+    fg=FG,
+    font=("Segoe UI", 24, "bold")
+)
+
+header.pack(pady=20)
+
+
+# =====================================================
+# INPUT BOX
+# =====================================================
+
+input_box = tk.Text(
+    main_area,
+    height=7,
+    width=85,
+    bg=BOX,
+    fg=FG,
+    insertbackground=FG,
+    relief="flat",
+    font=("Consolas", 11)
+)
+
+input_box.pack(pady=10)
+
+
+# =====================================================
+# RUN BUTTON
+# =====================================================
+
+run_button = tk.Button(
+    main_area,
+    text="RUN ▶",
+    command=run,
+    bg=ACCENT,
+    fg="black",
+    activebackground="#0ea5e9",
+    activeforeground="black",
+    relief="flat",
+    padx=30,
+    pady=10,
+    font=("Segoe UI", 12, "bold"),
+    cursor="hand2"
+)
+
+run_button.pack(pady=15)
+
+
+# =====================================================
+# OUTPUT BOX
+# =====================================================
+
+output_box = tk.Text(
+    main_area,
+    height=22,
+    width=95,
+    bg=BOX,
+    fg=FG,
+    insertbackground=FG,
+    relief="flat",
+    font=("Consolas", 11)
+)
+
+output_box.pack(pady=10)
+
+
+# =====================================================
+# START APP
+# =====================================================
+
+root.mainloop()

@@ -1,0 +1,144 @@
+PROGRAM CipherTool
+
+// ── CAESAR CIPHER ──────────────────────────────
+FUNCTION caesar_encrypt(message, key):
+    result = ""
+    FOR each char IN message:
+        IF char is a letter:
+            shift = key MOD 26
+            IF char is uppercase:
+                result += shift char within A–Z range
+            ELSE:
+                result += shift char within a–z range
+        ELSE:
+            result += char unchanged
+    RETURN result
+
+FUNCTION caesar_decrypt(message, key):
+    RETURN caesar_encrypt(message, -key)
+
+
+// ── ATBASH CIPHER ──────────────────────────────
+FUNCTION atbash_cipher(message):
+    result = ""
+    FOR each char IN message:
+        IF char is a letter:
+            IF uppercase: result += mirror char in A–Z (A↔Z, B↔Y …)
+            ELSE:          result += mirror char in a–z
+        ELSE:
+            result += char unchanged
+    RETURN result
+
+
+// ── VIGENÈRE CIPHER ────────────────────────────
+FUNCTION vigenere_encrypt(message, keyword):
+    result = ""
+    key_index = 0
+    keyword = lowercase(keyword)
+    FOR each char IN message:
+        IF char is a letter:
+            shift = position of keyword[key_index MOD keyword_length] in alphabet
+            result += shift char within correct case range
+            key_index += 1
+        ELSE:
+            result += char unchanged
+    RETURN result
+
+FUNCTION vigenere_decrypt(message, keyword):
+    SAME AS vigenere_encrypt but SUBTRACT shift instead of adding
+
+
+// ── UTILITIES ──────────────────────────────────
+FUNCTION generate_random_key():
+    RETURN random integer between 1 and 25
+
+FUNCTION brute_force_caesar(message):
+    FOR key FROM 1 TO 25:
+        decrypted = caesar_decrypt(message, key)
+        PRINT key and decrypted text
+        IF decrypted contains a common English word:
+            PRINT "Possible readable text detected"
+
+FUNCTION frequency_analysis(message):
+    letters = extract and uppercase all letters from message
+    IF no letters: PRINT warning and RETURN
+    counts = count occurrences of each letter
+    PRINT each letter and its count
+
+FUNCTION auto_detect_key(message):
+    letters = extract all letters from message
+    most_common = letter with highest frequency
+    guessed_key = (position of most_common) - (position of 'E') MOD 26
+    PRINT most_common letter, guessed key, and attempted decryption
+
+FUNCTION encryption_strength(layers, message_length):
+    score = (layers * 10) + message_length
+    IF score < 30:  PRINT "Weak"
+    IF score < 60:  PRINT "Moderate"
+    ELSE:           PRINT "Strong"
+
+
+// ── FILE & REPORTING ───────────────────────────
+FUNCTION encrypt_file():
+    filename = GET input from user
+    IF file does not exist: PRINT error and RETURN
+    content = READ file
+    key = GET integer key from user
+    IF key is 0: PRINT error and RETURN
+    encrypted = caesar_encrypt(content, key)
+    WRITE encrypted to "encrypted_<filename>"
+
+FUNCTION export_report(original, result, cipher_type, key):
+    timestamp = current date and time
+    report = formatted block containing timestamp, cipher, original, result, key
+    APPEND report to "encryption_report.txt"
+
+FUNCTION save_to_file(content):
+    APPEND content to "cipher_history.txt"
+
+
+// ── COMPOUND MODES ─────────────────────────────
+FUNCTION chain_encrypt(message):
+    key     = GET Caesar key from user
+    result  = caesar_encrypt(message, key)
+    result  = atbash_cipher(result)
+    keyword = GET Vigenère keyword from user
+    result  = vigenere_encrypt(result, keyword)
+    PRINT final result
+    CALL export_report(...)
+
+FUNCTION ai_mode():
+    message    = GET message from user
+    random_key = generate_random_key()
+    keyword    = "secure"
+    result = caesar_encrypt(message, random_key)
+    result = atbash_cipher(result)
+    result = vigenere_encrypt(result, keyword)
+    PRINT encrypted result, keys used
+    CALL encryption_strength(3, length of message)
+    CALL export_report(...)
+
+
+// ── MAIN LOOP ──────────────────────────────────
+PRINT welcome banner
+LOOP forever:
+    DISPLAY menu options 1–14
+    choice = GET input from user
+
+    MATCH choice:
+        1  → GET message & key → PRINT caesar_encrypt result → save to history
+        2  → GET message & key → PRINT caesar_decrypt result → save to history
+        3  → GET message → brute_force_caesar(message)
+        4  → GET message → frequency_analysis(message)
+        5  → GET message → auto_detect_key(message)
+        6  → GET message → PRINT atbash_cipher result
+        7  → GET message & keyword → PRINT vigenere_encrypt result
+        8  → GET message & keyword → PRINT vigenere_decrypt result
+        9  → encrypt_file()
+        10 → PRINT generate_random_key()
+        11 → GET message → chain_encrypt(message)
+        12 → ai_mode()
+        13 → PRINT all entries in history list
+        14 → PRINT goodbye and EXIT
+
+END PROGRAM
